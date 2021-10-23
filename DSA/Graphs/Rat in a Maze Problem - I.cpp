@@ -3,54 +3,65 @@ Consider a rat placed at (0, 0) in a square matrix of order N * N. It has to rea
 Note: In a path, no cell can be visited more than one time.
 */
 
-class Solution 
-{
+class Solution{
     public:
-    //Function to find out minimum steps Knight needs to reach target position.
-	int minStepToReachTarget(vector<int>&KnightPos,vector<int>&TargetPos,int N)
-	{
-	    pair<int, int> src = make_pair(KnightPos[1]-1, KnightPos[0]-1);
-	    pair<int, int> dest = make_pair(TargetPos[1]-1, TargetPos[0]-1);
-	    
-	    vector<vector<int>> grid(N, vector<int>(N, 0));
-	    
-	    queue<pair<pair<int, int>, int>> q;
-	    
-	    int dr[8] = {-1, -2, -2, -1, 1, 2, 2, 1};
-	    int dc[8] = {-2, -1, 1, 2, 2, 1, -1, -2};
-	    
-	    q.push(make_pair(src, 0));
-	    
-	    while(!q.empty())
-	    {
-	        int r = q.front().first.first;
-	        int c = q.front().first.second;
-	        int moves = q.front().second;
-	        q.pop();
-	        
-	        auto curr_pair = make_pair(r, c);
-	        if(curr_pair == dest)
-	        {
-	            return moves;
-	        }
-	        
-	        for(int k=0; k<8; k++)
-	        {
-	            int i = r+dr[k];
-	            int j = c+dc[k];
-	            
-	            if(i>=0 && j>=0 && i<N && j<N)
-	            {
-	                if(grid[i][j]!=1)
-	                {
-	                    auto p = make_pair(i, j);
-	                    q.push(make_pair(p, moves+1));
-	                    grid[i][j]=1;
-	                }
-	            }
-	        }
-	    }
-	    
-	    return -1;
-	}
+    int dr[4] = {-1, 0, 1, 0};
+    int dc[4] = {0, -1, 0, 1};
+    
+    void dfs(vector<vector<int>> &grid, int n, int r, int c, vector<string> &ans, vector<vector<int>> &vis, string path)
+    {
+        if(grid[r][c]==0)
+        {
+            return;
+        }
+        if(r==n-1 && c==n-1)
+        {
+            ans.push_back(path);
+            return;
+        }
+        
+        vis[r][c]=1;
+        
+        for(int k=0; k<4; k++)
+        {
+            int i=r+dr[k];
+            int j=c+dc[k];
+            
+            if(i>=0 && j>=0 && i<n && j<n)
+            {
+                if(!vis[i][j])
+                {
+                    char move;
+                    switch(k)
+                    {
+                        case 0:
+                            //up
+                            move='U';
+                            break;
+                        case 1:
+                            move='L';
+                            break;
+                        case 2:
+                            move='D';
+                            break;
+                        case 3:
+                            move='R';
+                            break;
+                    }
+                    
+                    dfs(grid, n, i, j, ans, vis, path+move);
+                }
+            }
+        }
+        
+        vis[r][c]=0;
+    }
+    
+    vector<string> findPath(vector<vector<int>> &m, int n) {
+        vector<string> ans;
+        vector<vector<int>> vis(n, vector<int>(n, 0));
+        dfs(m, n, 0, 0, ans, vis, "");
+        sort(ans.begin(), ans.end());
+        return ans;
+    }
 };
